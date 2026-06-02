@@ -1154,7 +1154,7 @@ function drawBlockBreaker(){
   blockBreakerCtx.fillText("Score: "+blockBreakerScore,20,blockBreakerCanvas.height-90);
   blockBreakerCtx.fillText("High Score: "+blockBreakerHighScore,20,blockBreakerCanvas.height-60);
   blockBreakerCtx.font="16px Arial";
-  blockBreakerCtx.fillText("Alt+M = Menu | Space = Launch",20,blockBreakerCanvas.height-30);
+  blockBreakerCtx.fillText("Alt+M = Menu | A/D or ◀ ▶ = Move | Space = Launch",20,blockBreakerCanvas.height-30);
 
   blockBreakerCtx.fillStyle="#ffd700";
   for(let block of blockBreakerBlocks){
@@ -1196,7 +1196,16 @@ function drawBlockBreaker(){
 function updateBlockBreaker(){
   if(!blockBreakerInGame || blockBreakerGameOver || blockBreakerWon) return;
 
-  blockBreakerPaddle.x=blockBreakerMouseX-blockBreakerPaddle.w/2;
+  const paddleSpeed = 8;
+  const leftPressed = keys["ArrowLeft"] || keys["a"] || keys["A"];
+  const rightPressed = keys["ArrowRight"] || keys["d"] || keys["D"];
+
+  if(leftPressed) {
+    blockBreakerPaddle.x -= paddleSpeed;
+  } else if(rightPressed) {
+    blockBreakerPaddle.x += paddleSpeed;
+  }
+
   if(blockBreakerPaddle.x<0) blockBreakerPaddle.x=0;
   if(blockBreakerPaddle.x+blockBreakerPaddle.w>blockBreakerCanvas.width) blockBreakerPaddle.x=blockBreakerCanvas.width-blockBreakerPaddle.w;
 
@@ -1204,8 +1213,8 @@ function updateBlockBreaker(){
     blockBreakerBall.x=blockBreakerPaddle.x+blockBreakerPaddle.w/2;
     blockBreakerBall.y=blockBreakerPaddle.y-blockBreakerBall.radius-2;
     if(keys[" "] || keys["Enter"]){
-      blockBreakerBall.vx=(Math.random()-0.5)*6;
-      blockBreakerBall.vy=-8;
+      blockBreakerBall.vx=(Math.random()-0.5)*8;
+      blockBreakerBall.vy=-11;
     }
   } else {
     blockBreakerBall.x+=blockBreakerBall.vx;
@@ -1275,10 +1284,11 @@ blockBreakerCanvas.addEventListener("touchmove",(e)=>{
 document.addEventListener("keydown", (e) => {
   if(!blockBreakerInGame) return;
 
-  if(e.key===" " || e.key==="Enter"){
+  const key = e.key.length === 1 ? e.key.toLowerCase() : e.key.toLowerCase();
+  if(key === " " || key === "enter" || key === "arrowleft" || key === "arrowright" || key === "a" || key === "d"){
     e.preventDefault();
     keys[e.key] = true;
-    if(blockBreakerGameOver || blockBreakerWon) {
+    if((e.key === " " || e.key === "Enter") && (blockBreakerGameOver || blockBreakerWon)) {
       resetBlockBreakerGame();
     }
   }
@@ -1286,7 +1296,7 @@ document.addEventListener("keydown", (e) => {
 
 document.addEventListener("keyup", (e) => {
   if(!blockBreakerInGame) return;
-  if(e.key===" " || e.key==="Enter"){
+  if(e.key===" " || e.key=== "Enter" || e.key=== "ArrowLeft" || e.key=== "ArrowRight" || e.key=== "a" || e.key=== "A" || e.key=== "d" || e.key=== "D"){
     keys[e.key] = false;
   }
 });
